@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagos mensuales | Autos Colombia</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 30px 16px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            color: #333333;
+            background: #f5f5f5;
+        }
+
+        .contenedor {
+            max-width: 1050px;
+            margin: 0 auto;
+        }
+
+        .encabezado {
+            padding: 24px;
+            margin-bottom: 22px;
+            color: white;
+            background: #782B23;
+            border-radius: 10px;
+        }
+
+        .encabezado h1 {
+            margin: 0 0 8px;
+            font-size: 25px;
+        }
+
+        .encabezado p {
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .navegacion {
+            margin-bottom: 20px;
+        }
+
+        a {
+            color: #782B23;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .panel {
+            padding: 24px;
+            margin-bottom: 24px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px #0000000d;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #782B23;
+            font-size: 19px;
+        }
+
+        .tarifas {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+
+        .tarifa {
+            padding: 16px;
+            background: #faf3f2;
+            border: 1px solid #ead6d3;
+            border-radius: 8px;
+        }
+
+        .tarifa strong {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .valor {
+            color: #782B23;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 11px;
+            margin-bottom: 16px;
+            border: 1px solid #cccccc;
+            border-radius: 6px;
+            background: white;
+            font-size: 14px;
+        }
+
+        button {
+            padding: 12px 18px;
+            color: white;
+            background: #782B23;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #5f211b;
+        }
+
+        .mensaje {
+            padding: 12px;
+            margin-bottom: 16px;
+            border-radius: 6px;
+        }
+
+        .exito {
+            color: #176534;
+            background: #e7f6eb;
+        }
+
+        .error {
+            color: #8b1e1e;
+            background: #fdeaea;
+        }
+
+        .tabla-contenedor {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            white-space: nowrap;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #eeeeee;
+            text-align: left;
+        }
+
+        th {
+            color: white;
+            background: #945351;
+        }
+
+        .estado {
+            color: #176534;
+            font-weight: bold;
+        }
+
+        .vencido {
+            color: #9b2525;
+            font-weight: bold;
+        }
+
+        .vacio {
+            padding: 20px;
+            color: #666666;
+            text-align: center;
+        }
+
+        @media (max-width: 600px) {
+            .tarifas {
+                grid-template-columns: 1fr;
+            }
+
+            .panel {
+                padding: 16px;
+            }
+
+            .encabezado h1 {
+                font-size: 21px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="contenedor">
+
+    <header class="encabezado">
+        <h1>Autos Colombia</h1>
+        <p>Administración de mensualidades y pagos del parqueadero</p>
+    </header>
+
+    <nav class="navegacion">
+        <a th:href="@{/}">← Volver al inicio</a>
+    </nav>
+
+    <section class="panel">
+        <h2>Tarifas mensuales</h2>
+
+        <div class="tarifas">
+            <div class="tarifa">
+                <strong>Motocicletas</strong>
+                <div class="valor">$80.000 COP</div>
+                <p>Mensualidad por vehículo</p>
+            </div>
+
+            <div class="tarifa">
+                <strong>Carros, camionetas y otros</strong>
+                <div class="valor">$120.000 COP</div>
+                <p>Mensualidad por vehículo</p>
+            </div>
+        </div>
+
+        <h2>Registrar mensualidad</h2>
+
+        <div th:if="${mensajeExito}"
+             class="mensaje exito"
+             th:text="${mensajeExito}">
+        </div>
+
+        <div th:if="${mensajeError}"
+             class="mensaje error"
+             th:text="${mensajeError}">
+        </div>
+
+        <form th:action="@{/pagos/registrar}" method="post">
+
+            <label for="placa">Placa del vehículo</label>
+            <input
+                    type="text"
+                    id="placa"
+                    name="placa"
+                    maxlength="10"
+                    placeholder="Ejemplo: GYQ526"
+                    required>
+
+            <label for="tipoVehiculo">Tipo de vehículo</label>
+            <select id="tipoVehiculo" name="tipoVehiculo" required>
+                <option value="">Selecciona un tipo</option>
+                <option value="Carro">Carro</option>
+                <option value="Motocicleta">Motocicleta</option>
+                <option value="Camioneta">Camioneta</option>
+                <option value="Otro">Otro</option>
+            </select>
+
+            <button type="submit">Registrar mensualidad</button>
+        </form>
+    </section>
+
+    <section class="panel">
+        <h2>Historial de mensualidades</h2>
+
+        <div class="tabla-contenedor">
+            <table>
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Placa</th>
+                    <th>Tipo de vehículo</th>
+                    <th>Valor pagado</th>
+                    <th>Fecha de pago</th>
+                    <th>Inicio de vigencia</th>
+                    <th>Vencimiento</th>
+                    <th>Estado</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="pago : ${pagos}">
+                    <td th:text="${pago.id}"></td>
+                    <td th:text="${pago.placa}"></td>
+                    <td th:text="${pago.tipoVehiculo}"></td>
+
+                    <td th:text="${'$' + #numbers.formatDecimal(pago.valor, 1, 'POINT', 0, 'COMMA')}"></td>
+
+                    <td th:text="${#temporals.format(pago.fechaPago, 'dd/MM/yyyy HH:mm')}"></td>
+
+                    <td th:text="${#temporals.format(pago.fechaInicio, 'dd/MM/yyyy')}"></td>
+
+                    <td th:text="${#temporals.format(pago.fechaVencimiento, 'dd/MM/yyyy')}"></td>
+
+                    <td>
+                        <span th:if="${pago.estaVigente()}"
+                              class="estado">Vigente</span>
+
+                        <span th:unless="${pago.estaVigente()}"
+                              class="vencido">Vencido</span>
+                    </td>
+                </tr>
+
+                <tr th:if="${#lists.isEmpty(pagos)}">
+                    <td colspan="8" class="vacio">
+                        Todavía no hay mensualidades registradas.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+</div>
+</body>
+</html>

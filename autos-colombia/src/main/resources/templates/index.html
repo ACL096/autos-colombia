@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Autos Colombia | Gestión de parqueadero</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Aptos Serif", Georgia, serif;
+            font-size: 14px;
+            color: #000000;
+            background-color: #f5f5f5;
+        }
+
+        header {
+            background-color: #782B23;
+            color: #ffffff;
+            padding: 25px 20px;
+            text-align: center;
+        }
+
+        h1, h2, h3 {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        header h1 {
+            margin: 0 0 8px;
+        }
+
+        header p {
+            margin: 0;
+        }
+
+        main {
+            width: 95%;
+            max-width: 1200px;
+            margin: 25px auto;
+        }
+
+        section {
+            background-color: #ffffff;
+            padding: 22px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #782B23;
+        }
+
+        .navegacion {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+        }
+
+        .enlace-pagos {
+            display: inline-block;
+            padding: 11px 16px;
+            border-radius: 5px;
+            background-color: #782B23;
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .enlace-pagos:hover {
+            background-color: #945351;
+        }
+
+        .formulario-entrada {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 15px;
+        }
+
+        .campo {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            font-family: inherit;
+            font-size: 14px;
+            border: 1px solid #cccccc;
+            border-radius: 5px;
+            background-color: #ffffff;
+            color: #000000;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: #945351;
+            color: #ffffff;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #782B23;
+        }
+
+        .formulario-entrada button {
+            grid-column: 1 / -1;
+            justify-self: start;
+        }
+
+        .mensaje {
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            background-color: #e4f3e5;
+            color: #000000;
+        }
+
+        .error {
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            background-color: #f8e3e3;
+            color: #000000;
+        }
+
+        .resumen-estacionamientos {
+            margin-bottom: 18px;
+            padding: 15px;
+            border: 1px solid #dddddd;
+            border-radius: 6px;
+            background-color: #ffffff;
+        }
+
+        .rejilla-celdas {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .celda {
+            min-height: 105px;
+            padding: 12px 8px;
+            border: 1px solid #dddddd;
+            border-radius: 6px;
+            text-align: center;
+            overflow-wrap: anywhere;
+        }
+
+        .celda-disponible {
+            background-color: #e4f3e5;
+            color: #000000;
+        }
+
+        .celda-ocupada {
+            background-color: #f8e3e3;
+            color: #000000;
+        }
+
+        .celda strong {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .celda p {
+            margin: 5px 0;
+        }
+
+        .tabla-contenedor {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            min-width: 1250px;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        thead {
+            background-color: #945351;
+            color: #ffffff;
+        }
+
+        th, td {
+            padding: 12px 10px;
+            text-align: left;
+            border: 1px solid #dddddd;
+            color: #000000;
+        }
+
+        th {
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        tbody tr {
+            background-color: #ffffff;
+        }
+
+        .estado-activo,
+        .estado-finalizado {
+            font-weight: bold;
+            color: #000000;
+        }
+
+        .formulario-salida {
+            margin: 0;
+        }
+
+        .sin-registros {
+            text-align: center;
+            padding: 20px;
+            color: #000000;
+        }
+
+        .valor-cobrado {
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        footer {
+            padding: 18px;
+            text-align: center;
+            color: #000000;
+        }
+
+        @media (max-width: 800px) {
+            .rejilla-celdas {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 600px) {
+            main {
+                width: 100%;
+                padding: 0 12px;
+            }
+
+            section {
+                padding: 16px;
+            }
+
+            .formulario-entrada {
+                grid-template-columns: 1fr;
+            }
+
+            .formulario-entrada button {
+                grid-column: 1;
+                width: 100%;
+            }
+
+            .rejilla-celdas {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .navegacion {
+                justify-content: stretch;
+            }
+
+            .enlace-pagos {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Autos Colombia</h1>
+    <p>Sistema de gestión de parqueadero</p>
+</header>
+
+<main>
+
+    <nav class="navegacion">
+        <a class="enlace-pagos" th:href="@{/pagos}">
+            Gestionar pagos mensuales
+        </a>
+    </nav>
+
+    <section>
+        <h2>Registrar entrada de vehículo</h2>
+
+        <div th:if="${mensaje}"
+             class="mensaje"
+             th:text="${mensaje}">
+        </div>
+
+        <div th:if="${error}"
+             class="error"
+             th:text="${error}">
+        </div>
+
+        <form th:action="@{/registrar-entrada}"
+              method="post"
+              class="formulario-entrada">
+
+            <div class="campo">
+                <label for="placa">Placa del vehículo</label>
+                <input type="text"
+                       id="placa"
+                       name="placa"
+                       placeholder="Ejemplo: ABC123"
+                       maxlength="10"
+                       required>
+            </div>
+
+            <div class="campo">
+                <label for="tipoVehiculo">Tipo de vehículo</label>
+                <select id="tipoVehiculo"
+                        name="tipoVehiculo"
+                        required>
+                    <option value="">Seleccione una opción</option>
+                    <option value="Carro">Carro</option>
+                    <option value="Motocicleta">Motocicleta</option>
+                    <option value="Camioneta">Camioneta</option>
+                    <option value="Otro">Otro</option>
+                </select>
+            </div>
+
+            <button type="submit">Registrar entrada</button>
+        </form>
+    </section>
+
+    <section>
+        <h2>Estacionamiento disponible</h2>
+
+        <div class="resumen-estacionamientos">
+            <p>
+                <strong>Estacionamientos totales:</strong>
+                <span th:text="${#lists.size(celdas)}">10</span>
+            </p>
+
+            <p>
+                <strong>Estacionamientos disponibles:</strong>
+                <span th:text="${celdasDisponibles}">10</span>
+            </p>
+
+            <p>
+                <strong>Estacionamientos ocupados:</strong>
+                <span th:text="${#lists.size(celdas) - celdasDisponibles}">0</span>
+            </p>
+        </div>
+
+        <div class="rejilla-celdas">
+            <div th:each="celda : ${celdas}"
+                 class="celda"
+                 th:classappend="${celda.ocupada} ? ' celda-ocupada' : ' celda-disponible'">
+
+                <strong th:text="${celda.numero}">C01</strong>
+
+                <p th:if="${celda.ocupada}">
+                    Ocupada
+                </p>
+
+                <p th:if="${celda.ocupada}"
+                   th:text="'Placa: ' + ${celda.placaVehiculo}">
+                    Placa: ABC123
+                </p>
+
+                <p th:unless="${celda.ocupada}">
+                    Disponible
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Historial de permanencias</h2>
+
+        <p>
+            Consulta las entradas, las salidas, las celdas asignadas
+            y los valores cobrados a los vehículos registrados.
+        </p>
+
+        <div class="tabla-contenedor">
+            <table>
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Placa</th>
+                    <th>Tipo de vehículo</th>
+                    <th>Celda</th>
+                    <th>Fecha y hora de entrada</th>
+                    <th>Fecha y hora de salida</th>
+                    <th>Estado</th>
+                    <th>Modalidad de cobro</th>
+                    <th>Valor cobrado</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="permanencia : ${permanencias}">
+                    <td th:text="${permanencia.id}"></td>
+                    <td th:text="${permanencia.placa}"></td>
+                    <td th:text="${permanencia.tipoVehiculo}"></td>
+                    <td th:text="${permanencia.numeroCelda}"></td>
+
+                    <td th:text="${#temporals.format(
+                        permanencia.fechaHoraEntrada,
+                        'dd/MM/yyyy HH:mm:ss'
+                    )}"></td>
+
+                    <td>
+                        <span th:if="${permanencia.fechaHoraSalida != null}"
+                              th:text="${#temporals.format(
+                                  permanencia.fechaHoraSalida,
+                                  'dd/MM/yyyy HH:mm:ss'
+                              )}">
+                        </span>
+
+                        <span th:if="${permanencia.fechaHoraSalida == null}">
+                            Pendiente
+                        </span>
+                    </td>
+
+                    <td>
+                        <span th:if="${permanencia.estaActiva()}"
+                              class="estado-activo">
+                            Dentro del parqueadero
+                        </span>
+
+                        <span th:unless="${permanencia.estaActiva()}"
+                              class="estado-finalizado">
+                            Salida registrada
+                        </span>
+                    </td>
+
+                    <td>
+                        <span th:if="${permanencia.estaActiva()}">
+                            Pendiente
+                        </span>
+
+                        <span th:if="${!permanencia.estaActiva()
+                                      and permanencia.modalidadCobro != null}"
+                              th:text="${permanencia.modalidadCobro}">
+                        </span>
+
+                        <span th:if="${!permanencia.estaActiva()
+                                      and permanencia.modalidadCobro == null}">
+                            Sin información
+                        </span>
+                    </td>
+
+                    <td class="valor-cobrado">
+                        <span th:if="${permanencia.estaActiva()}">
+                            Pendiente
+                        </span>
+
+                        <span th:if="${!permanencia.estaActiva()
+                                      and permanencia.valorCobrado != null}"
+                              th:text="'$' + ${#numbers.formatInteger(
+                                  permanencia.valorCobrado, 1, 'POINT'
+                              )} + ' COP'">
+                        </span>
+
+                        <span th:if="${!permanencia.estaActiva()
+                                      and permanencia.valorCobrado == null}">
+                            Sin información
+                        </span>
+                    </td>
+
+                    <td>
+                        <form th:if="${permanencia.estaActiva()}"
+                              th:action="@{/registrar-salida}"
+                              method="post"
+                              class="formulario-salida">
+
+                            <input type="hidden"
+                                   name="placa"
+                                   th:value="${permanencia.placa}">
+
+                            <button type="submit">
+                                Registrar salida
+                            </button>
+                        </form>
+
+                        <span th:unless="${permanencia.estaActiva()}">
+                            Sin acciones
+                        </span>
+                    </td>
+                </tr>
+
+                <tr th:if="${#lists.isEmpty(permanencias)}">
+                    <td colspan="10" class="sin-registros">
+                        No hay permanencias registradas todavía.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+</main>
+
+<footer>
+    <p>Autos Colombia - Sistema de gestión de parqueadero</p>
+</footer>
+
+</body>
+</html>
